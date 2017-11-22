@@ -3,7 +3,6 @@ library(corrplot) #para matriz de correlacao
 library(psych)
 library(GPArotation)
 
-
 surveyOriginal = read.table("responses.csv",sep=",",header=TRUE)
 
 # preparacao dos dados
@@ -20,7 +19,7 @@ survey["NivelEducacao"] <- NULL
 survey['TempoGastoInternet'] <- NULL
 
 #categorias
-musicas <- c("Music","Slow.music", "Fast.music", "Dance","Folk","Country","Classical.music","Musical","Pop","Rock","Metal.or.Hardrock","Punk","Hiphop..Rap","Reggae..Ska","Swing..Jazz","Rock.n.roll","Alternative","Latino","Techno..Trance","Opera")
+musicas <- c("Dance","Folk","Country","Classical.music","Musical","Pop","Rock","Metal.or.Hardrock","Punk","Hiphop..Rap","Reggae..Ska","Swing..Jazz","Rock.n.roll","Alternative","Latino","Techno..Trance","Opera")
 filmes <- c("Movies","Horror","Thriller","Comedy","Romantic","Sci.fi","War","Fantasy.Fairy.tales","Animated","Documentary","Western","Action")
 hobbysEInteresses <- c("History","Psychology","Politics","Mathematics","Physics","Internet","PC","Economy.Management","Biology","Chemistry","Reading","Geography","Foreign.languages","Medicine","Law","Cars","Art.exhibitions","Religion","Countryside..outdoors","Dancing","Musical.instruments","Writing","Passive.sport","Active.sport","Gardening","Celebrities","Shopping","Science.and.technology","Theatre","Fun.with.friends","Adrenaline.sports","Pets")
 fobias <- c("Flying","Storm","Darkness","Heights","Spiders","Snakes","Rats","Ageing","Dangerous.dogs","Fear.of.public.speaking")
@@ -39,44 +38,50 @@ for (row in 1:nrow(survey)) {
   survey[row, "Slow.music"] <- abs(survey[row, "Slow.songs.or.fast.songs"]-6)
   survey[row, "Fast.music"] <- survey[row, "Slow.songs.or.fast.songs"]
   
-  switch(as.character(survey[row, "Smoking"]),"never smoked"={survey[row, "SmokingNumber"] <- 1},
-         "tried smoking"={survey[row, "SmokingNumber"] <- 2},
-         "former smoker"={survey[row, "SmokingNumber"] <- 3},
-         "current smoker"={survey[row, "SmokingNumber"] <- 4},
-         {survey[row, "SmokingNumber"] <- ''}
+  switch(as.character(survey[row, "Smoking"]),
+         "never smoked"={survey[row, "SmokingNumber"] <- as.numeric(1)},
+         "tried smoking"={survey[row, "SmokingNumber"] <- as.numeric(2)},
+         "former smoker"={survey[row, "SmokingNumber"] <- as.numeric(3)},
+         "current smoker"={survey[row, "SmokingNumber"] <- as.numeric(4)},
+         {survey[row, "SmokingNumber"] <- NA}
   )
   
-  switch(as.character(survey[row, "Alcohol"]),"never"={survey[row, "AlcoholNumber"] <- 1},
-         "social drinker"={survey[row, "AlcoholNumber"] <- 2},
-         "drink a lot"={survey[row, "AlcoholNumber"] <- 3},
-         {survey[row, "SmokingNumber"] <- ''}
+  switch(as.character(survey[row, "Alcohol"]),
+         "never"={survey[row, "AlcoholNumber"] <- as.numeric(1)},
+         "social drinker"={survey[row, "AlcoholNumber"] <- as.numeric(2)},
+         "drink a lot"={survey[row, "AlcoholNumber"] <- as.numeric(3)},
+         {survey[row, "SmokingNumber"] <- NA}
   )
   
-  switch(as.character(survey[row, "Punctuality"]),"i am often early"={survey[row, "Atrasado"] <- 1},
-         "i am always on time"={survey[row, "Atrasado"] <- 2},
-         "i am often running late"={survey[row, "Atrasado"] <- 3},
-         {survey[row, "Atrasado"] <- ''}
+  switch(as.character(survey[row, "Punctuality"]),
+         "i am often early"={survey[row, "Atrasado"] <- as.numeric(1)},
+         "i am always on time"={survey[row, "Atrasado"] <- as.numeric(2)},
+         "i am often running late"={survey[row, "Atrasado"] <- as.numeric(3)},
+         {survey[row, "Atrasado"] <- NA}
   )
   
-  switch(as.character(survey[row, "Lying"]),"never"={survey[row, "QuantidadeMentiras"] <- 1},
-         "only to avoid hurting someone"={survey[row, "QuantidadeMentiras"] <- 2},
-         "sometimes"={survey[row, "QuantidadeMentiras"] <- 3},
-         "everytime it suits me"={survey[row, "QuantidadeMentiras"] <- 4},
-         {survey[row, "QuantidadeMentiras"] <- ''}
+  switch(as.character(survey[row, "Lying"]),
+         "never"={survey[row, "QuantidadeMentiras"] <- as.numeric(1)},
+         "only to avoid hurting someone"={survey[row, "QuantidadeMentiras"] <- as.numeric(2)},
+         "sometimes"={survey[row, "QuantidadeMentiras"] <- as.numeric(3)},
+         "everytime it suits me"={survey[row, "QuantidadeMentiras"] <- as.numeric(4)},
+         {survey[row, "QuantidadeMentiras"] <- NA}
   )
   
-  switch(as.character(survey[row, "Internet.usage"]),"no time at all"={survey[row, "TempoGastoInternet"] <- 1},
-         "less than an hour a day"={survey[row, "TempoGastoInternet"] <- 2},
-         "few hours a day"={survey[row, "TempoGastoInternet"] <- 3},
-         "most of the day"={survey[row, "TempoGastoInternet"] <- 4},
-         {survey[row, "TempoGastoInternet"] <- ''}
+  switch(as.character(survey[row, "Internet.usage"]),
+         "no time at all"={survey[row, "TempoGastoInternet"] <- as.numeric(1)},
+         "less than an hour a day"={survey[row, "TempoGastoInternet"] <- as.numeric(2)},
+         "few hours a day"={survey[row, "TempoGastoInternet"] <- as.numeric(3)},
+         "most of the day"={survey[row, "TempoGastoInternet"] <- as.numeric(4)},
+         {survey[row, "TempoGastoInternet"] <- NA}
   )
   
-  switch(as.character(survey[row, "Education"]),"primary school"={survey[row, "NivelEducacao"] <- 1},
-         "secondary school"={survey[row, "NivelEducacao"] <- 2},
-         "college/bachelor degree"={survey[row, "NivelEducacao"] <- 3},
-         "masters degree"={survey[row, "NivelEducacao"] <- 4},
-         {survey[row, "NivelEducacao"] <- ''}
+  switch(as.character(survey[row, "Education"]),
+         "primary school"={survey[row, "NivelEducacao"] <- as.numeric(1)},
+         "secondary school"={survey[row, "NivelEducacao"] <- as.numeric(2)},
+         "college/bachelor degree"={survey[row, "NivelEducacao"] <- as.numeric(3)},
+         "masters degree"={survey[row, "NivelEducacao"] <- as.numeric(4)},
+         {survey[row, "NivelEducacao"] <- NA}
   )
 }
 survey <- survey[complete.cases(survey),] #limpa missing data
@@ -186,7 +191,7 @@ fit
 #plot factor 1 by factor 2
 load <- fit$loadings
 plot(load)
-text(load, labels=names(survey[]),cex = 7) #adiciona nome das variáveis
+text(load, labels=names(survey[]),cex = .4) #adiciona nome das variáveis
 load
 
 #Os resultados mostram os valores dos fatores para cada variavel, os autovalores
@@ -205,10 +210,60 @@ load
 #FIM - Análise Fatorial
 
 
+#tests: https://www.statmethods.net/advstats/factor.html
+surveyMusic=surveyQuantitativo[,musicas]
+surveyMusicDem=surveyQuantitativo[,c(musicas,demograficosQuantitativos)]
+surveyInteresses = surveyQuantitativo[,hobbysEInteresses]
+surveyInteressesDem = surveyQuantitativo[, c(hobbysEInteresses, demograficosQuantitativos)]
+surveyFinal = surveyQuantitativo[, personalidadeQuantitativo]
+# Determine Number of Factors to Extract
+library(nFactors)
+ev <- eigen(cor(surveyFinal)) # get eigenvalues
+ap <- parallel(subject=nrow(surveyFinal),var=ncol(surveyFinal),
+               rep=100,cent=.05)
+nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+plotnScree(nS)
 
-#cluster
-kmeans(survey[filmes], 3)
-distancias = dist(survey[filmes])
-h = hclust(distancias)
-plot(h)
-rect.hclust(h, 5)
+# hothorn cap.5 -- determine number of factors by p-value
+sapply(1:10, function(f) +
+      factanal(surveyFinal, factors = f, method ="mle", rotation = "varimax")$PVAL)
+
+factanal(surveyFinal, factors = 18, method ="mle", rotation = "varimax")
+
+#função hothorn
+pfun <- function(nf, matrix) {
+  matrixCovariance <- cor(matrix)
+  fa <- factanal(covmat = matrixCovariance, factors = nf, method = "mle", n.obs = nrow(matrix))
+  est <- tcrossprod(fa$loadings) + diag(fa$uniquenesses)
+  ret <- round((matrixCovariance - est), 3)
+  colnames(ret) <- rownames(ret) <- abbreviate(rownames(ret), 3)
+  ret
+}
+pfun(9, surveyFinal)
+
+# Maximum Likelihood Factor Analysis
+# entering raw data and extracting 3 factors, 
+# with varimax rotation 
+fit <- factanal(surveyFinal, 9, rotation="varimax", method="mle")
+print(fit, digits=2, cutoff=.1, sort=TRUE)
+# plot factor 1 by factor 2 
+load <- fit$loadings[,2:3] 
+test <- fit$loadings[, 9:9]
+print(sort(test))
+plot(load,type="n") # set up plot 
+text(load,labels=names(surveyFinal),cex=.7) # add variable names
+
+# Principal Axis Factor Analysis
+library(psych)
+fit <- factor.pa(surveyFinal, nfactors=9)
+fit # print results
+
+# PCA Variable Factor Map 
+install.packages("FactoMineR")
+library(FactoMinerR)
+result <- PCA(surveyFinal) # graphs generated automatically
+
+library(sem)
+surveyFinal.cov <- cov(surveyFinal)
+model.surveyFinal <- specify.model()
+
