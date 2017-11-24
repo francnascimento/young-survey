@@ -228,18 +228,18 @@ plotnScree(nS)
 sapply(1:10, function(f) +
       factanal(surveyFinal, factors = f, method ="mle", rotation = "varimax")$PVAL)
 
-factanal(surveyFinal, factors = 18, method ="mle", rotation = "varimax")
+factanal(surveyFinal, factors = 3, method ="mle", rotation = "varimax")
 
-#função hothorn
+#função hothorn cap.5
 pfun <- function(nf, matrix) {
   matrixCovariance <- cor(matrix)
   fa <- factanal(covmat = matrixCovariance, factors = nf, method = "mle", n.obs = nrow(matrix))
   est <- tcrossprod(fa$loadings) + diag(fa$uniquenesses)
-  ret <- round((matrixCovariance - est), 3)
+  ret <- round((matrixCovariance - est), 2)
   colnames(ret) <- rownames(ret) <- abbreviate(rownames(ret), 3)
   ret
 }
-pfun(9, surveyFinal)
+pfun(3, surveyFinal)
 
 # Maximum Likelihood Factor Analysis
 # entering raw data and extracting 3 factors, 
@@ -247,11 +247,13 @@ pfun(9, surveyFinal)
 fit <- factanal(surveyFinal, 9, rotation="varimax", method="mle")
 print(fit, digits=2, cutoff=.1, sort=TRUE)
 # plot factor 1 by factor 2 
-load <- fit$loadings[,2:3] 
-test <- fit$loadings[, 9:9]
+
+test <- fit$loadings[, 7:9]
 print(sort(test))
-plot(load,type="n") # set up plot 
-text(load,labels=names(surveyFinal),cex=.7) # add variable names
+
+load <- fit$loadings[,4:5]
+plot(load,type="n", col="black") # set up plot 
+text(load,labels=names(surveyFinal),cex=.9, col = "black") # add variable names
 
 # Principal Axis Factor Analysis
 library(psych)
@@ -267,3 +269,39 @@ library(sem)
 surveyFinal.cov <- cov(surveyFinal)
 model.surveyFinal <- specify.model()
 
+# funcao que determina os fatores de uma amostra, dado as cargas
+determinaFator <- function(variaveis, loads) {
+  fatores <- array(dim=ncol(loads))
+  for(i in 1:ncol(loads)) {
+    fatores[i] <- sum(variaveis * loads[ ,i])
+  }
+  
+  return (fatores)
+}
+
+# analise fatorial de n fatores
+fa <- factanal(surveyFinal, factors = 2, rotation="varimax", method = "mle")
+loads <- (fa$loadings)
+
+# para cada amostra, determina seus fatores
+fatores <- list()
+for(i in 1:nrow(surveyFinal)) {
+  fatores[[i]] <- determinaFator(surveyFinal[i,], loads)
+}
+
+# converte a lista de listas em uma matriz
+# adaptado de: https://stackoverflow.com/questions/43425300/list-of-lists-to-matrix
+max_length <- max(unlist(lapply (fatores, FUN = length)))
+fatores <- sapply (fatores, function (x) {length (x) <- max_length; return (x)})
+fatores <- t(fatores)
+
+# http://motioninsocial.com/tufte/#dot-dash-plot
+# plotta os fatores
+library(lattice)
+x <- fatores[,1]
+y <- fatores[,2]
+xyplot(y ~ x, xlab="Fator 1", ylab="Fator 2",
+       par.settings = list(axis.line = list(col="transparent")),
+       panel = function(x, y,...) { 
+         panel.xyplot(x, y, col=1, pch=1, cex=.7)
+         panel.rug(x, y, col=1, x.units = rep("snpc", 2), y.units = rep("snpc", 2), ...)})
